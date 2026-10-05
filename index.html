@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memoria de Cartas - Card Memory Game</title>
+    <meta name="description" content="Un elegante y dinámico juego de memoria de cartas interactivo con varios niveles de dificultad, efectos 3D, sonidos y estadísticas.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <div class="app-container">
+        <!-- Header & Title -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon"><i data-lucide="brain-circuit"></i></div>
+                <h1>Memory<span>Master</span></h1>
+            </div>
+            <p class="subtitle">Desafía tu mente y encuéntralas todas antes de que se agote el tiempo</p>
+        </header>
+
+        <!-- Controls Bar -->
+        <section class="controls-panel glass-card">
+            <!-- Difficulty Selector -->
+            <div class="control-group">
+                <label for="difficulty-select"><i data-lucide="sliders"></i> Dificultad:</label>
+                <div class="segmented-control">
+                    <button class="seg-btn active" data-level="easy">Fácil (4x4)</button>
+                    <button class="seg-btn" data-level="medium">Medio (4x6)</button>
+                    <button class="seg-btn" data-level="hard">Difícil (6x6)</button>
+                </div>
+            </div>
+
+            <!-- Category / Theme Selector -->
+            <div class="control-group">
+                <label><i data-lucide="palette"></i> Tema:</label>
+                <select id="theme-select" class="custom-select">
+                    <option value="emojis">Emojis Divertidos 🎨</option>
+                    <option value="tech">Tecnología y Código 💻</option>
+                    <option value="nature">Naturaleza y Animales 🌿</option>
+                    <option value="space">Espacio y Galaxias 🚀</option>
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button id="start-btn" class="btn btn-primary">
+                    <i data-lucide="play"></i> <span id="start-btn-text">Iniciar Juego</span>
+                </button>
+                <button id="restart-btn" class="btn btn-secondary" title="Reiniciar partida">
+                    <i data-lucide="rotate-ccw"></i>
+                </button>
+                <button id="sound-toggle" class="btn btn-icon" title="Activar/Desactivar sonido">
+                    <i data-lucide="volume-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Stats Bar -->
+        <section class="stats-panel glass-card">
+            <div class="stat-box">
+                <div class="stat-icon"><i data-lucide="clock"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Tiempo</span>
+                    <span id="timer-display" class="stat-value">00:00</span>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-icon"><i data-lucide="footprints"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Movimientos</span>
+                    <span id="moves-display" class="stat-value">0</span>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-icon"><i data-lucide="sparkles"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Parejas</span>
+                    <span id="pairs-display" class="stat-value">0 / 8</span>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-icon"><i data-lucide="trophy"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Mejor Tiempo</span>
+                    <span id="best-time-display" class="stat-value">--:--</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Board Overlay & Board -->
+        <main class="game-wrapper">
+            <div id="start-overlay" class="game-overlay glass-card">
+                <div class="overlay-content">
+                    <i data-lucide="sparkles" class="hero-icon"></i>
+                    <h2>¿Listo para jugar?</h2>
+                    <p>Selecciona tu nivel de dificultad y presiona <strong>"Iniciar Juego"</strong> para comenzar a contar el tiempo.</p>
+                    <button id="overlay-start-btn" class="btn btn-primary btn-lg">
+                        <i data-lucide="play"></i> Comienza Ahora
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid Container -->
+            <div id="game-grid" class="game-grid grid-easy">
+                <!-- Cards dynamically generated here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Felicitaciones / Victoria -->
+    <div id="victory-modal" class="modal-backdrop">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <div class="victory-badge">🏆</div>
+                <h2>¡Felicitaciones!</h2>
+                <p>Has encontrado todas las parejas con éxito.</p>
+            </div>
+            
+            <div class="stars-rating" id="stars-container">
+                <i data-lucide="star" class="star active"></i>
+                <i data-lucide="star" class="star active"></i>
+                <i data-lucide="star" class="star active"></i>
+            </div>
+
+            <div class="modal-stats">
+                <div class="modal-stat-item">
+                    <span class="label"><i data-lucide="clock"></i> Tiempo Total</span>
+                    <span class="value" id="modal-time">00:45</span>
+                </div>
+                <div class="modal-stat-item">
+                    <span class="label"><i data-lucide="footprints"></i> Movimientos</span>
+                    <span class="value" id="modal-moves">14</span>
+                </div>
+                <div class="modal-stat-item">
+                    <span class="label"><i data-lucide="award"></i> Puntuación</span>
+                    <span class="value" id="modal-score">1,250 pts</span>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="play-again-btn" class="btn btn-primary btn-block">
+                    <i data-lucide="rotate-ccw"></i> Jugar de Nuevo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas for Confetti -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
